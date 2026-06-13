@@ -14,6 +14,15 @@
   --acg-white:          #FFFFFF;    /* Pure white */
   --acg-charcoal:       #1C1C1E;    /* For auth pages */
   --acg-charcoal-light: #2C2C2E;
+
+  /* Tailwind color names */
+  --color-primary: var(--acg-ocean-blue);
+  --color-secondary: var(--acg-navy-dark);
+  --color-accent: var(--acg-champagne);
+  --color-ivory: var(--acg-ivory);
+  --color-seaglass: var(--acg-sea-glass);
+  --color-charcoal: var(--acg-charcoal);
+  --color-charcoal-light: var(--acg-charcoal-light);
   
   /* Typography */
   --font-display: "Playfair Display", Georgia, serif;
@@ -28,13 +37,12 @@
 html, body, #root {
   width: 100%;
   min-height: 100%;
-  overflow-x: hidden;
 }
 
 body {
   font-family: var(--font-sans);
-  background: var(--acg-charcoal);
-  color: var(--acg-ivory);
+  background: var(--acg-sea-glass);
+  color: var(--acg-navy-dark);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -282,27 +290,20 @@ body {
 }
 
 /* ─────────────────────────────────────────
-   Scrollbar hide
+   Custom Premium Scrollbar
    ───────────────────────────────────────── */
-::-webkit-scrollbar { display: none; }
-
-/* ─────────────────────────────────────────
-   Dashboard Premium Cards
-   ───────────────────────────────────────── */
-.acg-dash-card {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(30, 111, 142, 0.15);
-  box-shadow: 0 8px 24px rgba(30, 111, 142, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  border-radius: 16px;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
-
-.acg-dash-card:hover {
-  background: rgba(255, 255, 255, 0.95);
-  border-color: rgba(30, 111, 142, 0.25);
-  transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(30, 111, 142, 0.12);
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(30, 111, 142, 0.15);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(30, 111, 142, 0.3);
 }
 

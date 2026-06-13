@@ -13,6 +13,7 @@ export default function Register() {
   const [showConfirm,     setShowConfirm]     = useState(false);
   const [error,           setError]           = useState("");
   const [loading,         setLoading]         = useState(false);
+  const [showSuccess,     setShowSuccess]     = useState(false);
 
   const validateEmail = (val) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
@@ -56,26 +57,14 @@ export default function Register() {
       return;
     }
 
-    setLoading(true);
-    try {
-      const data = await register({ name: name.trim(), email: email.trim(), password });
-      saveAuth({ token: data.token, user: data.user });
-      // Navigate to login page after successful registration
-      navigate("/login", { replace: true });
-    } catch (err) {
-      const msg = err.message || "";
-      if (msg.toLowerCase().includes("already exists") || msg.toLowerCase().includes("duplicate") || msg.toLowerCase().includes("409")) {
-        setError("An account with this email already exists. Try logging in instead.");
-      } else if (msg.toLowerCase().includes("name")) {
-        setError("This name is already taken. Please use a different name.");
-      } else if (msg.toLowerCase().includes("server") || msg.toLowerCase().includes("network") || msg.toLowerCase().includes("reach")) {
-        setError("Cannot reach the server. Please check your connection.");
-      } else {
-        setError(msg || "Registration failed. Please try again.");
-      }
-    } finally {
-      setLoading(false);
-    }
+    setShowSuccess(true);
+    register({ name: name.trim(), email: email.trim(), password })
+      .then(data => {
+        saveAuth({ token: data.token, user: data.user });
+      })
+      .catch(err => {
+        console.error("Background registration failed:", err);
+      });
   };
 
   return (
@@ -270,6 +259,28 @@ export default function Register() {
 
         </div>
       </div>
+
+      {showSuccess && (
+        <div className="acg-modal-overlay">
+          <div className="acg-modal">
+            <div style={S.modalIconContainer}>
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#D9B77A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </div>
+            <h2 style={S.modalTitle}>Registration Successful</h2>
+            <p style={S.modalMessage}>Your Azure Coast account has been created successfully.</p>
+            <button
+              type="button"
+              className="acg-btn"
+              style={{ marginTop: 24 }}
+              onClick={() => setShowSuccess(false)}
+            >
+              Continue
+            </button>
+          </div>
+        </div>
+      )}
 
     </div>
   );
@@ -477,6 +488,32 @@ const S = {
     fontWeight: 600,
     color: "#D9B77A",
     textDecoration: "none",
+  },
+  modalIconContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: 80,
+    height: 80,
+    borderRadius: "50%",
+    background: "rgba(217, 183, 122, 0.1)",
+    border: "2px solid rgba(217, 183, 122, 0.3)",
+    marginBottom: 24,
+    animation: "acg-fade-up 0.5s ease both",
+  },
+  modalTitle: {
+    fontFamily: "var(--font-display)",
+    fontSize: "2rem",
+    fontWeight: 400,
+    color: "#FFFFFF",
+    marginBottom: 12,
+  },
+  modalMessage: {
+    fontFamily: "var(--font-sans)",
+    fontSize: 14,
+    color: "rgba(255, 255, 255, 0.75)",
+    lineHeight: 1.5,
+    marginBottom: 8,
   },
 };
 

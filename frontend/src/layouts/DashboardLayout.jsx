@@ -3,10 +3,10 @@ import Sidebar from "../components/Sidebar";
 
 export default function DashboardLayout({ children }) {
   return (
-    <div className="min-h-screen bg-[#EAF4F6]">
-      <div className="mx-auto flex min-h-screen max-w-[1760px] flex-col gap-6 px-4 py-4 md:px-6 lg:px-8 xl:px-10">
-        <div className="flex flex-col gap-6 xl:flex-row xl:items-start">
-          <aside className="w-full xl:w-[280px] xl:flex-shrink-0">
+    <div className="min-h-screen bg-seaglass text-secondary antialiased">
+      <div className="mx-auto max-w-[1760px] p-4 md:p-6 lg:p-8">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+          <aside className="w-full lg:w-[280px] lg:flex-shrink-0 lg:sticky lg:top-8">
             <Sidebar />
           </aside>
 
