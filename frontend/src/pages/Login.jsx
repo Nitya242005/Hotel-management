@@ -1,322 +1,455 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
 import { login } from "../api";
 import { saveAuth } from "../utils/auth";
 
 export default function Login() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("admin@forgequantum.com");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [email,        setEmail]       = useState("");
+  const [password,     setPassword]    = useState("");
+  const [showPwd,      setShowPwd]     = useState(false);
+  const [error,        setError]       = useState("");
+  const [loading,      setLoading]     = useState(false);
 
-  // Mouse-following champagne gold glow position
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [isGlowVisible, setIsGlowVisible] = useState(false);
-
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      setMousePos({ x: e.clientX, y: e.clientY });
-    };
-    
-    // Only track mouse movement on desktop viewport for performance
-    if (window.innerWidth >= 1024) {
-      setIsGlowVisible(true);
-      window.addEventListener("mousemove", handleMouseMove);
-    }
-
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-    };
-  }, []);
+  const validateEmail = (val) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    // Client-side validation
+    if (!email.trim()) {
+      setError("Email address is required.");
+      return;
+    }
+    if (!validateEmail(email.trim())) {
+      setError("Please enter a valid email address (e.g. name@domain.com).");
+      return;
+    }
+    if (!password) {
+      setError("Password is required.");
+      return;
+    }
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long.");
+      return;
+    }
+
     setLoading(true);
     try {
-      const data = await login({ email, password });
+      const data = await login({ email: email.trim(), password });
       saveAuth({ token: data.token, user: data.user });
+      // Navigate directly to dashboard
       navigate("/dashboard", { replace: true });
     } catch (err) {
-      setError(err.message);
+      const msg = err.message || "";
+      if (msg.toLowerCase().includes("not found") || msg.toLowerCase().includes("invalid email")) {
+        setError("No account found with this email address.");
+      } else if (msg.toLowerCase().includes("password") || msg.toLowerCase().includes("incorrect")) {
+        setError("Incorrect password. Please try again.");
+      } else if (msg.toLowerCase().includes("server") || msg.toLowerCase().includes("network") || msg.toLowerCase().includes("reach")) {
+        setError("Cannot reach the server. Please check your connection.");
+      } else {
+        setError(msg || "Authentication failed. Please check your credentials.");
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="relative grid min-h-screen items-center bg-cover bg-center bg-fixed lg:grid-cols-12 overflow-hidden select-none bg-ivory">
+    <div style={S.root}>
       {/* Background Image */}
-      <div
-        className="absolute inset-0 bg-cover bg-center transition-transform duration-[2000ms] scale-[1.01]"
-        style={{ backgroundImage: "url('/luxury_hotel_background.png')" }}
+      <img
+        src="/azure_coast.png"
+        alt="Azure Coast Resort"
+        style={S.bgImage}
+        draggable={false}
       />
-      {/* Premium Warm Lighting & Contrast Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-ivory/98 via-ivory/92 to-beige-warm/70 lg:via-ivory/85 lg:to-beige-warm/50" />
+      {/* Strong Dark Left-Side Overlay */}
+      <div className="acg-left-overlay" />
 
-      {/* Floating blurred ambient gold circles in background */}
-      <div className="absolute top-[15%] left-[10%] h-[350px] w-[350px] rounded-full bg-gold-champagne/10 blur-[130px] pointer-events-none animate-float" />
-      <div className="absolute bottom-[10%] right-[20%] h-[450px] w-[450px] rounded-full bg-bronze-soft/8 blur-[150px] pointer-events-none animate-float-delayed" />
-
-      {/* Subtle mouse-following glow (desktop only) */}
-      {isGlowVisible && (
-        <div
-          className="pointer-events-none fixed -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold-champagne/12 blur-[120px] transition-all duration-[350ms] ease-out z-[5]"
-          style={{
-            left: `${mousePos.x}px`,
-            top: `${mousePos.y}px`,
-            width: "380px",
-            height: "380px",
-          }}
-        />
-      )}
-
-      {/* ---------- Left Side: Hospitality Storytelling & Trust Indicators ---------- */}
-      <section className="relative z-10 px-8 py-16 text-brown-espresso sm:px-12 lg:col-span-7 lg:px-24 flex flex-col justify-center min-h-[40vh] lg:min-h-screen animate-fade-up">
-        {/* Top Badge */}
-        <div className="mb-6 flex items-center gap-2.5 font-sans text-xs font-semibold uppercase tracking-[0.25em] text-bronze-soft">
-          <span className="h-1.5 w-1.5 rounded-full bg-gold-champagne animate-ping" />
-          The Hotel Experience
+      {/* ═══════════════════════════════════
+          LEFT — Premium Hero (60%)
+      ═══════════════════════════════════ */}
+      <div style={S.leftSection}>
+        
+        {/* Minimal Hero Header */}
+        <div className="acg-anim-fade-up acg-d-100" style={S.heroHeader}>
+          <div style={S.collectionBadge}>AZURE COAST COLLECTION</div>
+          <h1 style={S.editorialHeading}>
+            Stay Beyond<br />
+            Expectations
+          </h1>
+          <p style={S.editorialSubtitle}>
+            Luxury hospitality management platform for hotels, resorts, and premium guest experiences.
+          </p>
         </div>
 
-        {/* Brand Headline */}
-        <h1 className="mb-6 font-serif text-4xl font-light leading-[1.15] tracking-tight sm:text-5xl lg:text-7xl text-brown-espresso">
-          Where Hospitality <br />
-          <span className="italic font-normal text-gold-champagne">Meets Excellence.</span>
-        </h1>
-
-        {/* Narrative */}
-        <p className="mb-12 max-w-xl font-sans text-base lg:text-lg font-light leading-relaxed text-brown-espresso/80">
-          A sanctuary of quiet luxury, where every detail is curated to perfection. 
-          Welcome to the Hotel Management Portal — your gateway to flawless 
-          operations, bespoke guest services, and refined administrative command.
-        </p>
-
-        {/* Trust Indicators Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg">
-          <div className="p-5 rounded-2xl border border-white/50 bg-white/20 backdrop-blur-md shadow-[0_12px_30px_rgba(59,47,47,0.03)] transition-all duration-300 hover:-translate-y-1 hover:border-gold-champagne/30 hover:bg-white/40">
-            <div className="mb-1 text-gold-champagne text-sm font-semibold tracking-wider">★★★★★</div>
-            <div className="font-serif text-lg font-bold text-brown-espresso">Luxury Experience</div>
-            <div className="font-sans text-[10px] uppercase tracking-wider text-bronze-soft mt-1 font-medium">Bespoke 5-Star Standards</div>
+        {/* 4 Floating Glass Feature Cards */}
+        <div className="acg-feature-grid acg-anim-fade-up acg-d-300">
+          
+          <div className="acg-feature-card acg-float-1">
+            <SmartReservationsIcon />
+            <span>Smart Reservations</span>
           </div>
 
-          <div className="p-5 rounded-2xl border border-white/50 bg-white/20 backdrop-blur-md shadow-[0_12px_30px_rgba(59,47,47,0.03)] transition-all duration-300 hover:-translate-y-1 hover:border-gold-champagne/30 hover:bg-white/40">
-            <div className="mb-1 text-gold-champagne text-lg font-bold">98%</div>
-            <div className="font-serif text-lg font-bold text-brown-espresso">Guest Satisfaction</div>
-            <div className="font-sans text-[10px] uppercase tracking-wider text-bronze-soft mt-1 font-medium">Uncompromising Excellence</div>
+          <div className="acg-feature-card acg-float-2">
+            <GuestExperienceIcon />
+            <span>Guest Experience</span>
           </div>
 
-          <div className="p-5 rounded-2xl border border-white/50 bg-white/20 backdrop-blur-md shadow-[0_12px_30px_rgba(59,47,47,0.03)] transition-all duration-300 hover:-translate-y-1 hover:border-gold-champagne/30 hover:bg-white/40">
-            <div className="mb-1 text-gold-champagne text-lg font-bold">24/7</div>
-            <div className="font-serif text-lg font-bold text-brown-espresso">Dedicated Care</div>
-            <div className="font-sans text-[10px] uppercase tracking-wider text-bronze-soft mt-1 font-medium">Always at Your Service</div>
+          <div className="acg-feature-card acg-float-3">
+            <RevenueAnalyticsIcon />
+            <span>Revenue Analytics</span>
           </div>
 
-          <div className="p-5 rounded-2xl border border-white/50 bg-white/20 backdrop-blur-md shadow-[0_12px_30px_rgba(59,47,47,0.03)] transition-all duration-300 hover:-translate-y-1 hover:border-gold-champagne/30 hover:bg-white/40">
-            <div className="mb-1 text-gold-champagne text-lg font-bold">10,000+</div>
-            <div className="font-serif text-lg font-bold text-brown-espresso">Reservations Managed</div>
-            <div className="font-sans text-[10px] uppercase tracking-wider text-bronze-soft mt-1 font-medium">Trusted Operation Platform</div>
+          <div className="acg-feature-card acg-float-4">
+            <HousekeepingControlIcon />
+            <span>Housekeeping Control</span>
           </div>
+
         </div>
-      </section>
 
-      {/* ---------- Right Side: Redesigned Glassmorphic Sign-in Card ---------- */}
-      <section className="relative z-10 flex justify-center px-4 py-8 sm:px-12 lg:col-span-5 lg:px-8 xl:px-16 min-h-screen items-center">
-        {/* Layered Glass Concept Containers for Visual Depth */}
-        <div className="relative z-10 flex w-full max-w-[430px] items-center justify-center py-6">
+      </div>
 
-          {/* Main Card */}
-          <div className="relative z-10 w-full rounded-3xl glass-luxury-card p-8 sm:p-10 border border-white/60 animate-fade-up">
+      {/* ═══════════════════════════════════
+          RIGHT — Premium Glass Panel (40%)
+      ═══════════════════════════════════ */}
+      <div style={S.rightSection}>
+        <div className="acg-glass-card acg-anim-fade-in acg-d-200" style={S.card}>
+          
+          {/* Card Header */}
+          <div style={S.cardHeader}>
+            <div style={S.brandLogo}>
+              <div style={S.brandIcon}><LogoIcon /></div>
+              <span style={S.brandName}>Azure Coast</span>
+            </div>
+            <h2 className="acg-anim-fade-up acg-d-300" style={S.cardTitle}>
+              Welcome Back
+            </h2>
+            <p className="acg-anim-fade-up acg-d-400" style={S.cardSubtitle}>
+              Access your hospitality workspace.
+            </p>
+          </div>
+
+          {/* Error */}
+          {error && (
+            <div style={S.errorBox}>
+              <ErrorIcon />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} style={S.form} noValidate>
             
-            {/* Header / Brand Logo Monogram */}
-            <div className="mb-8 flex flex-col items-center text-center">
-              {/* Modern minimalist monogram logo */}
-              <div className="relative mb-4 flex h-16 w-16 items-center justify-center rounded-full border-2 border-gold-champagne/60 bg-gradient-to-tr from-ivory/80 to-white/95 shadow-[0_4px_15px_rgba(59,47,47,0.03),_0_0_12px_rgba(212,168,79,0.1)]">
-                <div className="absolute inset-0.5 rounded-full border border-gold-champagne/20" />
-                <span className="font-serif text-xl font-bold tracking-widest text-brown-espresso">HM</span>
+            <div className="acg-anim-fade-up acg-d-400" style={S.field}>
+              <label style={S.label} htmlFor="login-email">Email Address</label>
+              <input
+                id="login-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+                required
+                placeholder="your@email.com"
+                className="acg-input"
+              />
+            </div>
+
+            <div className="acg-anim-fade-up acg-d-500" style={S.field}>
+              <div style={S.labelRow}>
+                <label style={S.label} htmlFor="login-password">Password</label>
+                <a
+                  href="#"
+                  style={S.forgotLink}
+                  onClick={(e) => { e.preventDefault(); alert("Contact administrator."); }}
+                >
+                  Forgot password?
+                </a>
               </div>
-              <h2 className="font-serif text-2xl font-semibold text-brown-espresso tracking-tight">
-                Hotel <span className="italic font-light text-gold-champagne">Management</span>
-              </h2>
-              <div className="mt-2 flex items-center gap-1.5 font-sans text-[10px] tracking-widest uppercase text-bronze-soft">
-                <span className="h-1.5 w-1.5 rounded-full bg-gold-champagne shadow-[0_0_6px_#d4a84f] animate-pulse" />
-                Secure Portal
+              <div style={S.pwdWrap}>
+                <input
+                  id="login-password"
+                  type={showPwd ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
+                  required
+                  placeholder="••••••••"
+                  className="acg-input"
+                  style={{ paddingRight: 44 }}
+                />
+                <button
+                  type="button"
+                  style={S.pwdToggle}
+                  onClick={() => setShowPwd(v => !v)}
+                  aria-label={showPwd ? "Hide password" : "Show password"}
+                >
+                  <EyeIcon open={showPwd} />
+                </button>
               </div>
             </div>
 
-            {/* Error Message */}
-            {error && (
-              <div className="mb-6 rounded-xl border border-red-200 bg-red-50/80 px-4 py-3 text-xs text-red-800 backdrop-blur-sm">
-                <span className="font-semibold">Access Denied:</span> {error}
-              </div>
-            )}
-
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="flex flex-col">
-              {/* Email */}
-              <div className="mb-5 flex flex-col">
-                <label className="mb-2 font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-bronze-soft">
-                  Email Address
-                </label>
-                <div className="flex items-center gap-3 rounded-xl border border-beige-warm bg-ivory/60 px-4 transition-all duration-300 focus-within:border-gold-champagne focus-within:bg-white focus-within:shadow-[0_0_15px_rgba(212,168,79,0.12)]">
-                  <MailIcon className="text-bronze-soft/60" />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    autoComplete="email"
-                    required
-                    className="flex-1 bg-transparent py-3.5 text-sm text-brown-espresso outline-none placeholder:text-brown-espresso/30 font-sans"
-                    placeholder="you@management.com"
-                  />
-                </div>
-              </div>
-
-              {/* Password */}
-              <div className="mb-5 flex flex-col">
-                <label className="mb-2 font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-bronze-soft">
-                  Password
-                </label>
-                <div className="flex items-center gap-3 rounded-xl border border-beige-warm bg-ivory/60 px-4 transition-all duration-300 focus-within:border-gold-champagne focus-within:bg-white focus-within:shadow-[0_0_15px_rgba(212,168,79,0.12)]">
-                  <LockIcon className="text-bronze-soft/60" />
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    autoComplete="current-password"
-                    required
-                    className="flex-1 bg-transparent py-3.5 text-sm text-brown-espresso outline-none placeholder:text-brown-espresso/30 font-sans"
-                    placeholder="••••••••••••"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((v) => !v)}
-                    className="flex text-bronze-soft/50 transition hover:text-gold-champagne"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                  >
-                    <EyeIcon open={showPassword} className="text-bronze-soft/60" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Remember Me & Forgot Password */}
-              <div className="mb-6 flex items-center justify-between">
-                <label className="flex items-center gap-2 cursor-pointer select-none group">
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    className="sr-only"
-                  />
-                  <div className={`flex h-4 w-4 items-center justify-center rounded border transition-all duration-200 ${
-                    rememberMe 
-                      ? "border-gold-champagne bg-gold-champagne text-white" 
-                      : "border-bronze-soft/30 bg-white/50 group-hover:border-gold-champagne/60"
-                  }`}>
-                    {rememberMe && (
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    )}
-                  </div>
-                  <span className="font-sans text-xs text-brown-espresso/70 font-medium">Remember me</span>
-                </label>
-
-                <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    alert("Please contact the front desk or your system administrator to recover access.");
-                  }}
-                  className="font-sans text-xs font-semibold text-bronze-soft hover:text-gold-champagne transition duration-200"
-                >
-                  Forgot Password?
-                </a>
-              </div>
-
-              {/* Sign In Button */}
+            <div className="acg-anim-fade-up acg-d-600" style={{ marginTop: 12 }}>
               <button
+                id="login-submit"
                 type="submit"
                 disabled={loading}
-                className="relative overflow-hidden w-full mt-2 rounded-xl bg-gradient-to-r from-gold-champagne to-bronze-soft py-4 font-sans text-xs font-bold uppercase tracking-[0.22em] text-white transition-all duration-300 hover:shadow-[0_8px_25px_rgba(212,168,79,0.3)] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60 shimmer-sweep"
+                className="acg-btn"
               >
-                {loading ? "Verifying Credentials…" : "Enter Portal"}
+                {loading ? "Authenticating…" : "Access Dashboard"}
               </button>
-            </form>
+            </div>
 
-            {/* Redirection */}
-            <p className="mt-8 text-center font-sans text-xs text-brown-espresso/60">
-              Don't have an account?{" "}
-              <Link
-                to="/register"
-                className="font-semibold text-bronze-soft hover:text-gold-champagne hover:underline underline-offset-4 transition duration-200"
-              >
-                Create Portal Access
-              </Link>
-            </p>
+          </form>
+
+          {/* Register Link */}
+          <div className="acg-anim-fade-in acg-d-700" style={S.switchWrap}>
+            <span style={S.switchText}>New to Azure Coast?</span>
+            <Link to="/register" style={S.switchLink}>
+              Create your workspace
+            </Link>
           </div>
+
         </div>
-      </section>
+      </div>
+
     </div>
   );
 }
 
-/* ---------- Inline icons ---------- */
-function MailIcon({ className }) {
+/* ─── Styles ───────────────────────────────────────────────────── */
+const S = {
+  root: {
+    display: "flex",
+    width: "100vw",
+    height: "100vh",
+    overflow: "hidden",
+    position: "relative",
+  },
+  bgImage: {
+    position: "absolute",
+    inset: 0,
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    objectPosition: "center",
+    zIndex: 0,
+  },
+
+  /* ── Left Section ── */
+  leftSection: {
+    position: "relative",
+    flex: "0 0 60%",
+    zIndex: 10,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    paddingLeft: "8vw",
+    paddingRight: "4vw",
+    gap: 40,
+  },
+  heroHeader: {
+    display: "flex",
+    flexDirection: "column",
+    maxWidth: 580,
+    zIndex: 15,
+  },
+  collectionBadge: {
+    fontFamily: "var(--font-sans)",
+    fontSize: 12,
+    fontWeight: 700,
+    letterSpacing: "0.2em",
+    color: "#D9B77A",
+    marginBottom: 16,
+    textShadow: "0 2px 8px rgba(0,0,0,0.3)",
+  },
+  editorialHeading: {
+    fontFamily: "var(--font-display)",
+    fontSize: "clamp(2.8rem, 4.8vw, 4.5rem)",
+    fontWeight: 400,
+    lineHeight: 1.12,
+    color: "#FFFFFF",
+    marginBottom: 20,
+    textShadow: "0 4px 24px rgba(0,0,0,0.5)",
+  },
+  editorialSubtitle: {
+    fontFamily: "var(--font-sans)",
+    fontSize: 16,
+    lineHeight: 1.6,
+    color: "rgba(255, 255, 255, 0.85)",
+    fontWeight: 400,
+    textShadow: "0 2px 8px rgba(0,0,0,0.4)",
+  },
+
+  /* Feature card inner elements */
+  cardIcon: {
+    color: "#D9B77A",
+    flexShrink: 0,
+  },
+
+  /* ── Right Section ── */
+  rightSection: {
+    position: "relative",
+    flex: "0 0 40%",
+    zIndex: 10,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingRight: "5vw",
+  },
+  card: {
+    position: "relative",
+    width: "100%",
+    maxWidth: 440,
+    padding: "48px 40px",
+    background: "rgba(255,255,255,0.12)",
+    backdropFilter: "blur(30px)",
+    border: "1px solid rgba(255,255,255,0.25)",
+    boxShadow: "0 25px 80px rgba(0,0,0,0.15)",
+    borderRadius: 32,
+  },
+  cardHeader: {
+    marginBottom: 32,
+    textAlign: "center",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  brandLogo: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 20,
+    background: "rgba(255,255,255,0.08)",
+    border: "1px solid rgba(255,255,255,0.15)",
+    padding: "8px 16px",
+    borderRadius: 100,
+  },
+  brandIcon: {
+    color: "#D9B77A",
+    display: "flex",
+    alignItems: "center",
+  },
+  brandName: {
+    fontFamily: "var(--font-sans)",
+    fontSize: 14,
+    fontWeight: 600,
+    color: "#FFFFFF",
+    letterSpacing: "0.05em",
+  },
+  cardTitle: {
+    fontFamily: "var(--font-display)",
+    fontSize: "2.2rem",
+    fontWeight: 400,
+    color: "#FFFFFF",
+    marginBottom: 8,
+    textShadow: "0 2px 10px rgba(0,0,0,0.1)",
+  },
+  cardSubtitle: {
+    fontFamily: "var(--font-sans)",
+    fontSize: 14,
+    color: "rgba(255, 255, 255, 0.7)",
+    fontWeight: 400,
+  },
+  errorBox: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    background: "rgba(239, 68, 68, 0.15)",
+    border: "1px solid rgba(239, 68, 68, 0.3)",
+    borderRadius: 12,
+    padding: "12px 16px",
+    marginBottom: 20,
+    fontFamily: "var(--font-sans)",
+    fontSize: 13,
+    fontWeight: 500,
+    color: "#ef4444",
+  },
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 20,
+  },
+  field: {
+    display: "flex",
+    flexDirection: "column",
+  },
+  labelRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  label: {
+    fontFamily: "var(--font-sans)",
+    fontSize: 13,
+    fontWeight: 600,
+    color: "rgba(255, 255, 255, 0.9)",
+    marginBottom: 8,
+  },
+  forgotLink: {
+    fontFamily: "var(--font-sans)",
+    fontSize: 12,
+    fontWeight: 500,
+    color: "#D9B77A",
+    textDecoration: "none",
+    transition: "color 0.2s",
+  },
+  pwdWrap: {
+    position: "relative",
+  },
+  pwdToggle: {
+    position: "absolute",
+    right: 14,
+    top: "50%",
+    transform: "translateY(-50%)",
+    background: "none",
+    border: "none",
+    cursor: "pointer",
+    color: "rgba(255, 255, 255, 0.6)",
+    display: "flex",
+    alignItems: "center",
+  },
+  switchWrap: {
+    marginTop: 32,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
+  switchText: {
+    fontFamily: "var(--font-sans)",
+    fontSize: 13,
+    color: "rgba(255, 255, 255, 0.7)",
+  },
+  switchLink: {
+    fontFamily: "var(--font-sans)",
+    fontSize: 13,
+    fontWeight: 600,
+    color: "#D9B77A",
+    textDecoration: "none",
+  },
+};
+
+/* ─── Icon Components ───────────────────────────────────────────── */
+function LogoIcon() {
   return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <rect x="3" y="5" width="18" height="14" rx="2" />
-      <path d="m3 7 9 6 9-6" />
+    <svg width={18} height={18} viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
     </svg>
   );
 }
 
-function LockIcon({ className }) {
+function EyeIcon({ open }) {
   return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <rect x="4" y="11" width="16" height="10" rx="2" />
-      <path d="M8 11V7a4 4 0 0 1 8 0v4" />
-    </svg>
-  );
-}
-
-function EyeIcon({ open, className }) {
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
+    <svg width={18} height={18} viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       {open ? (
         <>
           <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
@@ -328,6 +461,54 @@ function EyeIcon({ open, className }) {
           <path d="m2 2 20 20" />
         </>
       )}
+    </svg>
+  );
+}
+
+function ErrorIcon() {
+  return (
+    <svg width={16} height={16} viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+         style={{ flexShrink: 0 }}>
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="8" x2="12" y2="12" />
+      <line x1="12" y1="16" x2="12.01" y2="16" />
+    </svg>
+  );
+}
+
+function SmartReservationsIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={S.cardIcon}>
+      <rect x="3" y="4" width="18" height="18" rx="2" />
+      <path d="M16 2v4M8 2v4M3 10h18" />
+    </svg>
+  );
+}
+
+function GuestExperienceIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={S.cardIcon}>
+      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+    </svg>
+  );
+}
+
+function RevenueAnalyticsIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={S.cardIcon}>
+      <line x1="18" y1="20" x2="18" y2="10" />
+      <line x1="12" y1="20" x2="12" y2="4" />
+      <line x1="6" y1="20" x2="6" y2="14" />
+      <path d="M2 20h20" />
+    </svg>
+  );
+}
+
+function HousekeepingControlIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={S.cardIcon}>
+      <path d="M12 3v18M3 12h18M12 3l4 4M12 3L8 7M12 21l4-4M12 21l-4-4" />
     </svg>
   );
 }

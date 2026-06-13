@@ -6,7 +6,9 @@ export const registeruser = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
     if (!name || !email || !password) {
-      return res.status(400).json({
+      return res.status(200).json({
+        success: false,
+        sucess: false,
         message: "Please provide name, email and password",
       });
     }
@@ -15,7 +17,7 @@ export const registeruser = async (req, res, next) => {
     let isOffline = false;
 
     try {
-      existingUser = await User.findOne({ email });
+      existingUser = await User.findOne({ email }).maxTimeMS(5000);
     } catch (dbErr) {
       console.warn("Database lookup failed during registration, falling back to mock registration:", dbErr.message);
       isOffline = true;
@@ -27,7 +29,8 @@ export const registeruser = async (req, res, next) => {
       // Check in-memory database
       const exists = OFFLINE_USERS.find((u) => u.email.toLowerCase() === emailLower);
       if (exists) {
-        return res.status(400).json({
+        return res.status(200).json({
+          success: false,
           sucess: false,
           message: "User with this email already exists (Offline Fallback)",
         });
@@ -44,6 +47,7 @@ export const registeruser = async (req, res, next) => {
       OFFLINE_USERS.push(newUser);
 
       return res.status(201).json({
+        success: true,
         sucess: true,
         message: "User registered successfully (Offline Fallback)",
         token: generateToken(mockUserId),
@@ -57,13 +61,15 @@ export const registeruser = async (req, res, next) => {
     }
 
     if (existingUser) {
-      return res.status(400).json({
+      return res.status(200).json({
+        success: false,
         sucess: false,
         message: "User with this email already exists",
       });
     }
     const user = await User.create({ name, email, password });
     return res.status(201).json({
+      success: true,
       sucess: true,
       message: "User registered successfully",
       token: generateToken(user._id),
@@ -83,7 +89,9 @@ export const loginuser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
-      return res.status(400).json({
+      return res.status(200).json({
+        success: false,
+        sucess: false,
         message: "Please provide email and password",
       });
     }
@@ -92,7 +100,7 @@ export const loginuser = async (req, res, next) => {
     let isOffline = false;
     
     try {
-      user = await User.findOne({ email });
+      user = await User.findOne({ email }).maxTimeMS(5000);
     } catch (dbErr) {
       console.warn("Database lookup failed, falling back to mock authentication:", dbErr.message);
       isOffline = true;
@@ -107,6 +115,7 @@ export const loginuser = async (req, res, next) => {
 
       if (offlineUser) {
         return res.status(200).json({
+          success: true,
           sucess: true,
           message: "User logged in successfully (Offline Fallback)",
           token: generateToken(offlineUser.id),
@@ -118,7 +127,8 @@ export const loginuser = async (req, res, next) => {
           },
         });
       } else {
-        return res.status(400).json({
+        return res.status(200).json({
+          success: false,
           sucess: false,
           message: "Invalid email or password (Offline Fallback)",
         });
@@ -126,7 +136,8 @@ export const loginuser = async (req, res, next) => {
     }
 
     if (!user) {
-      return res.status(400).json({
+      return res.status(200).json({
+        success: false,
         sucess: false,
         message: "Invalid email or password",
       });
@@ -134,13 +145,15 @@ export const loginuser = async (req, res, next) => {
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      return res.status(400).json({
+      return res.status(200).json({
+        success: false,
         sucess: false,
         message: "Invalid email or password",
       });
     }
 
     return res.status(200).json({
+      success: true,
       sucess: true,
       message: "User logged in successfully",
       token: generateToken(user._id),

@@ -1,238 +1,274 @@
+﻿import { useState } from "react";
 import DashboardLayout from "../layouts/DashboardLayout";
 import { getUser } from "../utils/auth";
 
-const STATS = [
+const KPI_CARDS = [
   {
-    label: "Available Rooms",
+    icon: "🛏️",
+    title: "Available Rooms",
     value: "42",
-    sub: "of 68 total",
-    color: "from-gold-champagne/20 to-beige-warm/40",
-    border: "border-gold-champagne/25",
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="text-gold-champagne">
-        <path d="M2 20V9a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v11" />
-        <path d="M2 20h20" /><path d="M6 7V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v3" />
-        <path d="M7 13h4v7H7zM13 13h4v7h-4z" />
-      </svg>
-    ),
+    subtitle: "of 68 total rooms",
+    trend: "↑ 3 since yesterday",
   },
   {
-    label: "Today's Check-ins",
+    icon: "👋",
+    title: "Check-ins Today",
     value: "18",
-    sub: "3 pending arrival",
-    color: "from-bronze-soft/15 to-beige-warm/30",
-    border: "border-bronze-soft/25",
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="text-bronze-soft">
-        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-        <circle cx="9" cy="7" r="4" />
-        <path d="M19 8l2 2-2 2M21 10h-6" />
-      </svg>
-    ),
+    subtitle: "3 pending arrivals",
+    trend: "↑ 12% vs yesterday",
   },
   {
-    label: "Occupancy Rate",
+    icon: "📊",
+    title: "Occupancy Rate",
     value: "76%",
-    sub: "+4% from yesterday",
-    color: "from-gold-champagne/15 to-ivory/60",
-    border: "border-gold-champagne/20",
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="text-gold-champagne">
-        <line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" />
-        <line x1="6" y1="20" x2="6" y2="14" />
-        <path d="M2 20h20" />
-      </svg>
-    ),
+    subtitle: "Optimal density",
+    trend: "↑ 4% from yesterday",
   },
   {
-    label: "Revenue Today",
-    value: "$12.4k",
-    sub: "Target: $15k",
-    color: "from-brown-espresso/8 to-beige-warm/40",
-    border: "border-brown-espresso/15",
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="text-brown-espresso">
-        <line x1="12" y1="1" x2="12" y2="23" />
-        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-      </svg>
-    ),
+    icon: "₹",
+    title: "Revenue Today",
+    value: "₹12,48,000",
+    subtitle: "Target: ₹15,00,000",
+    trend: "↑ 83% of target",
   },
 ];
 
-const QUICK_ACTIONS = [
-  {
-    label: "New Reservation",
-    desc: "Book a room for a guest",
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18M12 14v4M10 16h4" />
-      </svg>
-    ),
-  },
-  {
-    label: "Check-in Guest",
-    desc: "Process today's arrivals",
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" />
-      </svg>
-    ),
-  },
-  {
-    label: "Housekeeping",
-    desc: "Assign cleaning tasks",
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" />
-      </svg>
-    ),
-  },
-  {
-    label: "Generate Invoice",
-    desc: "Billing and payments",
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="12" y1="18" x2="12" y2="12" /><line x1="9" y1="15" x2="15" y2="15" />
-      </svg>
-    ),
-  },
+const OPERATIONS = [
+  { icon: "📋", title: "New Reservation", description: "Create guest bookings" },
+  { icon: "👋", title: "Check-In Guest", description: "Welcome arrivals" },
+  { icon: "🧹", title: "Housekeeping", description: "Manage room cleaning" },
+  { icon: "📄", title: "Billing", description: "Invoices & payments" },
 ];
 
-const RECENT_ACTIVITY = [
-  { guest: "Priya Sharma", action: "Checked in", room: "Suite 201", time: "10 mins ago", status: "in" },
-  { guest: "Rahul Mehta", action: "Checked out", room: "Deluxe 105", time: "42 mins ago", status: "out" },
-  { guest: "Ananya Patel", action: "Reservation confirmed", room: "Premium 308", time: "1 hr ago", status: "reserved" },
-  { guest: "Vikram Singh", action: "Room service", room: "Suite 202", time: "2 hrs ago", status: "service" },
-  { guest: "Neha Joshi", action: "Checked in", room: "Classic 112", time: "3 hrs ago", status: "in" },
+const GUEST_ACTIVITY = [
+  { guest: "Arjun Sharma", room: "Suite 204", activity: "Checked in", time: "10m ago", status: "CHECK-IN" },
+  { guest: "Priya Nair", room: "Deluxe 105", activity: "Room Service Completed", time: "42m ago", status: "SERVICE" },
+  { guest: "Sneha Patel", room: "Premium 308", activity: "Reservation Confirmed", time: "1h ago", status: "RESERVED" },
+  { guest: "Karthik Reddy", room: "Suite 202", activity: "Payment Settled", time: "2h ago", status: "SETTLED" },
 ];
 
-const STATUS_STYLES = {
-  in: "bg-gold-champagne/15 text-gold-champagne border border-gold-champagne/30",
-  out: "bg-brown-espresso/10 text-brown-espresso border border-brown-espresso/20",
-  reserved: "bg-bronze-soft/15 text-bronze-soft border border-bronze-soft/25",
-  service: "bg-beige-warm text-bronze-soft border border-bronze-soft/20",
-};
+const TODAYS_ARRIVALS = [
+  { name: "Arjun Sharma", room: "Suite 204", time: "02:00 PM" },
+  { name: "Priya Nair", room: "Deluxe 105", time: "03:30 PM" },
+  { name: "Sneha Patel", room: "Ocean View 112", time: "04:50 PM" },
+];
+
+const UPCOMING_CHECKOUTS = [
+  { name: "Rahul Verma", room: "Suite 502", time: "11:00 AM" },
+  { name: "Karthik Reddy", room: "Deluxe 208", time: "12:00 PM" },
+];
+
+const HOUSEKEEPING_STATUS = [
+  { room: "Suite 201", status: "Clean", staff: "Ravi", checked: true },
+  { room: "Deluxe 305", status: "Cleaning", staff: "Rani", checked: false },
+  { room: "Deluxe 308", status: "Inspection", staff: "Anita", checked: false },
+  { room: "Ocean View 112", status: "Clean", staff: "Suresh", checked: true },
+];
+
+const GUEST_SERVICE_REQUESTS = [
+  { type: "Airport Pickup", guest: "Arjun Sharma", time: "10m ago" },
+  { type: "Restaurant Booking", guest: "Priya Nair", time: "35m ago" },
+  { type: "Late Check-Out", guest: "Karthik Reddy", time: "1h ago" },
+  { type: "Spa Booking", guest: "Sneha Patel", time: "2h ago" },
+];
 
 export default function Dashboard() {
   const user = getUser();
+  const firstName = user?.name ? user.name.split(" ")[0] : "Guest";
+
+  const now = new Date();
+  const hour = now.getHours();
+  const greeting =
+    hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
+  const formattedDate = now.toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
 
   return (
     <DashboardLayout>
-      {/* Welcome Section */}
-      <div className="mb-8 animate-fade-up">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="h-1.5 w-1.5 rounded-full bg-gold-champagne animate-pulse" />
-          <span className="font-sans text-[10px] font-semibold uppercase tracking-[0.22em] text-bronze-soft">
-            Live Dashboard
-          </span>
-        </div>
-        <h1 className="font-serif text-3xl font-semibold text-brown-espresso leading-tight">
-          Welcome back{user?.name ? `, ${user.name}` : ""}
-        </h1>
-        <p className="mt-1 font-sans text-sm font-light text-brown-espresso/60">
-          Here's what's happening at your hotel today.
-        </p>
-      </div>
-
-      {/* Stat Cards */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-        {STATS.map((stat) => (
-          <div
-            key={stat.label}
-            className={`relative overflow-hidden rounded-2xl border ${stat.border} bg-gradient-to-br ${stat.color} p-5 shadow-[0_4px_20px_rgba(59,47,47,0.04)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(59,47,47,0.08)] backdrop-blur-sm`}
-          >
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/60 border border-white/80 shadow-sm">
-                {stat.icon}
-              </div>
+      <div className="space-y-6 pb-12">
+        {/* HERO SECTION */}
+        <section className="relative overflow-hidden rounded-[24px] h-[280px]">
+          <img
+            src="/azure_coast.png"
+            alt="Azure Coast Resort"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#1E6F8E]/70 via-[#1E6F8E]/40 to-transparent" />
+          <div className="relative z-10 flex flex-col justify-between h-full p-8 md:p-12">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.4em] text-[#D9B77A]">
+                Welcome back
+              </p>
+              <h1 className="mt-3 text-5xl font-light text-white">
+                {greeting}, <span className="font-semibold">{firstName}</span>
+              </h1>
             </div>
-            <div className="font-serif text-3xl font-bold text-brown-espresso leading-none mb-1">
-              {stat.value}
-            </div>
-            <div className="font-sans text-sm font-medium text-brown-espresso/80 mb-0.5">
-              {stat.label}
-            </div>
-            <div className="font-sans text-[11px] text-bronze-soft/80">
-              {stat.sub}
-            </div>
+            <p className="text-white/90 text-base max-w-2xl leading-relaxed">
+              {formattedDate}
+            </p>
           </div>
-        ))}
-      </div>
+        </section>
 
-      {/* Lower Grid: Quick Actions + Recent Activity */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-
-        {/* Quick Actions */}
-        <div className="lg:col-span-1">
-          <h2 className="font-serif text-lg font-semibold text-brown-espresso mb-4">
-            Quick Actions
-          </h2>
-          <div className="flex flex-col gap-3">
-            {QUICK_ACTIONS.map((action) => (
-              <button
-                key={action.label}
-                className="flex items-center gap-4 rounded-2xl border border-beige-warm bg-white/60 px-4 py-3.5 text-left shadow-[0_2px_12px_rgba(59,47,47,0.04)] transition-all duration-200 hover:border-gold-champagne/40 hover:bg-white hover:shadow-[0_4px_20px_rgba(212,168,79,0.1)] backdrop-blur-sm group"
-              >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-beige-warm bg-ivory text-bronze-soft transition-all duration-200 group-hover:border-gold-champagne/40 group-hover:bg-gold-champagne/10 group-hover:text-gold-champagne">
-                  {action.icon}
-                </div>
+        {/* KPI CARDS */}
+        <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
+          {KPI_CARDS.map((card) => (
+            <div key={card.title} className="acg-dash-card p-6">
+              <div className="flex items-start justify-between gap-4 mb-4">
                 <div>
-                  <div className="font-sans text-sm font-semibold text-brown-espresso group-hover:text-brown-espresso">
-                    {action.label}
-                  </div>
-                  <div className="font-sans text-[11px] text-bronze-soft/70">
-                    {action.desc}
-                  </div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#1E6F8E]/60">
+                    {card.title}
+                  </p>
+                  <p className="mt-3 text-3xl font-bold text-[#17384F]">
+                    {card.value}
+                  </p>
                 </div>
-                <svg className="ml-auto text-bronze-soft/30 group-hover:text-gold-champagne transition-colors" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M9 18l6-6-6-6" />
-                </svg>
-              </button>
+                <div className="text-3xl">{card.icon}</div>
+              </div>
+              <p className="text-xs text-[#1E6F8E]/70 mb-2">{card.subtitle}</p>
+              <p className="text-xs font-semibold text-[#D9B77A]">{card.trend}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* OPERATIONS CENTER */}
+        <section>
+          <h2 className="text-base font-semibold uppercase tracking-[0.3em] text-[#1E6F8E]/60 mb-4">
+            Operations Center
+          </h2>
+          <div className="grid gap-6 grid-cols-2 xl:grid-cols-4">
+            {OPERATIONS.map((op) => (
+              <div key={op.title} className="acg-dash-card p-6 text-center hover:shadow-lg transition">
+                <div className="text-4xl mb-3">{op.icon}</div>
+                <p className="font-semibold text-[#17384F] text-sm">{op.title}</p>
+                <p className="text-xs text-[#1E6F8E]/60 mt-1">{op.description}</p>
+              </div>
             ))}
+          </div>
+        </section>
+
+        {/* MAIN CONTENT GRID */}
+        <div className="grid gap-6 xl:grid-cols-4">
+          {/* LEFT COLUMN - GUEST ACTIVITY */}
+          <div className="xl:col-span-1">
+            <div className="acg-dash-card overflow-hidden">
+              <div className="bg-[#EAF4F6] px-6 py-4 border-b border-[#1E6F8E]/10">
+                <h3 className="font-semibold text-[#17384F] text-sm">LIVE GUEST ACTIVITY</h3>
+              </div>
+              <div className="divide-y divide-[#1E6F8E]/10">
+                {GUEST_ACTIVITY.map((item, idx) => (
+                  <div key={idx} className="p-4">
+                    <p className="text-xs font-semibold text-[#17384F]">{item.guest}</p>
+                    <p className="text-xs text-[#1E6F8E]/60 mt-1">
+                      {item.activity} • {item.room}
+                    </p>
+                    <div className="flex items-center justify-between gap-2 mt-3">
+                      <span className="inline-block px-2 py-1 bg-[#EAF4F6] text-[#1E6F8E] text-xs font-semibold rounded-full">
+                        {item.status}
+                      </span>
+                      <span className="text-xs text-[#1E6F8E]/60">{item.time}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT COLUMNS - 3 COLUMN GRID */}
+          <div className="xl:col-span-3 grid gap-6 grid-cols-1 sm:grid-cols-3">
+            {/* TODAY'S ARRIVALS */}
+            <div className="acg-dash-card overflow-hidden">
+              <div className="bg-[#EAF4F6] px-6 py-4 border-b border-[#1E6F8E]/10">
+                <h3 className="font-semibold text-[#17384F] text-sm">TODAY'S ARRIVALS</h3>
+              </div>
+              <div className="divide-y divide-[#1E6F8E]/10">
+                {TODAYS_ARRIVALS.map((item, idx) => (
+                  <div key={idx} className="p-4">
+                    <p className="text-xs font-semibold text-[#17384F]">{item.name}</p>
+                    <p className="text-xs text-[#1E6F8E]/60 mt-1">{item.room}</p>
+                    <p className="text-xs text-[#D9B77A] font-semibold mt-2">{item.time}</p>
+                  </div>
+                ))}
+                <div className="px-4 py-3 text-center">
+                  <p className="text-xs text-[#1E6F8E] font-semibold cursor-pointer hover:text-[#D9B77A]">
+                    + 3 more arrivals →
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* UPCOMING CHECK-OUTS */}
+            <div className="acg-dash-card overflow-hidden">
+              <div className="bg-[#EAF4F6] px-6 py-4 border-b border-[#1E6F8E]/10">
+                <h3 className="font-semibold text-[#17384F] text-sm">UPCOMING CHECK-OUTS</h3>
+              </div>
+              <div className="divide-y divide-[#1E6F8E]/10">
+                {UPCOMING_CHECKOUTS.map((item, idx) => (
+                  <div key={idx} className="p-4">
+                    <p className="text-xs font-semibold text-[#17384F]">{item.name}</p>
+                    <p className="text-xs text-[#1E6F8E]/60 mt-1">{item.room}</p>
+                    <p className="text-xs text-[#D9B77A] font-semibold mt-2">{item.time}</p>
+                  </div>
+                ))}
+                <div className="px-4 py-3 text-center">
+                  <p className="text-xs text-[#1E6F8E] font-semibold cursor-pointer hover:text-[#D9B77A]">
+                    + 2 more check-outs →
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* HOUSEKEEPING STATUS */}
+            <div className="acg-dash-card overflow-hidden">
+              <div className="bg-[#EAF4F6] px-6 py-4 border-b border-[#1E6F8E]/10">
+                <h3 className="font-semibold text-[#17384F] text-sm">HOUSEKEEPING STATUS</h3>
+              </div>
+              <div className="divide-y divide-[#1E6F8E]/10">
+                {HOUSEKEEPING_STATUS.map((item, idx) => (
+                  <div key={idx} className="p-4">
+                    <p className="text-xs font-semibold text-[#17384F]">{item.room}</p>
+                    <div className="flex items-center justify-between mt-2">
+                      <span className={`text-xs font-semibold px-2 py-1 rounded-full ${item.checked ? "bg-emerald-100 text-emerald-700" : "bg-yellow-100 text-yellow-700"}`}>
+                        {item.status === "Clean" ? "✓ Clean" : item.status === "Cleaning" ? "● Cleaning" : "⚠ Inspection"}
+                      </span>
+                    </div>
+                    <p className="text-xs text-[#1E6F8E]/60 mt-1">{item.staff}</p>
+                  </div>
+                ))}
+                <div className="px-4 py-3 text-center">
+                  <p className="text-xs text-[#1E6F8E] font-semibold cursor-pointer hover:text-[#D9B77A]">
+                    + 4 more rooms →
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Recent Activity */}
-        <div className="lg:col-span-2">
-          <h2 className="font-serif text-lg font-semibold text-brown-espresso mb-4">
-            Recent Activity
-          </h2>
-          <div className="rounded-2xl border border-beige-warm bg-white/60 shadow-[0_2px_12px_rgba(59,47,47,0.04)] overflow-hidden backdrop-blur-sm">
-            {RECENT_ACTIVITY.map((item, i) => (
-              <div
-                key={i}
-                className={`flex items-center gap-4 px-5 py-4 transition-colors duration-150 hover:bg-gold-champagne/5 ${
-                  i < RECENT_ACTIVITY.length - 1 ? "border-b border-beige-warm/60" : ""
-                }`}
-              >
-                {/* Avatar */}
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-beige-warm to-ivory border border-gold-champagne/20">
-                  <span className="font-serif text-sm font-bold text-brown-espresso">
-                    {item.guest.charAt(0)}
-                  </span>
-                </div>
-
-                {/* Details */}
-                <div className="flex-1 min-w-0">
-                  <div className="font-sans text-sm font-semibold text-brown-espresso truncate">
-                    {item.guest}
-                  </div>
-                  <div className="font-sans text-[11px] text-bronze-soft/70 truncate">
-                    {item.action} · <span className="font-medium text-bronze-soft">{item.room}</span>
-                  </div>
-                </div>
-
-                {/* Status badge */}
-                <span className={`shrink-0 rounded-full px-2.5 py-0.5 font-sans text-[10px] font-semibold uppercase tracking-wide ${STATUS_STYLES[item.status]}`}>
-                  {item.status === "in" ? "Check In" : item.status === "out" ? "Check Out" : item.status === "reserved" ? "Reserved" : "Service"}
-                </span>
-
-                {/* Time */}
-                <span className="shrink-0 font-sans text-[11px] text-brown-espresso/40 hidden sm:block">
-                  {item.time}
-                </span>
+        {/* GUEST SERVICE REQUESTS */}
+        <div className="acg-dash-card overflow-hidden">
+          <div className="bg-[#EAF4F6] px-6 py-4 border-b border-[#1E6F8E]/10">
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-[#17384F] text-sm">GUEST SERVICE REQUESTS</h3>
+              <p className="text-xs text-[#1E6F8E] font-semibold cursor-pointer hover:text-[#D9B77A]">View all →</p>
+            </div>
+          </div>
+          <div className="grid gap-0 sm:grid-cols-2 lg:grid-cols-4">
+            {GUEST_SERVICE_REQUESTS.map((req, idx) => (
+              <div key={idx} className={`p-4 ${idx < GUEST_SERVICE_REQUESTS.length - 1 ? "border-b sm:border-b-0 sm:border-r border-[#1E6F8E]/10" : ""}`}>
+                <p className="text-xs font-semibold text-[#17384F]">{req.type}</p>
+                <p className="text-xs text-[#1E6F8E]/60 mt-1">{req.guest}</p>
+                <p className="text-xs text-[#1E6F8E]/60 mt-2">{req.time}</p>
               </div>
             ))}
+          </div>
+          <div className="px-6 py-4 text-center border-t border-[#1E6F8E]/10">
+            <p className="text-xs text-[#1E6F8E] font-semibold cursor-pointer hover:text-[#D9B77A]">
+              + 2 more requests →
+            </p>
           </div>
         </div>
       </div>

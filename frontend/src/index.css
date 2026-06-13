@@ -1,122 +1,308 @@
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap");
 @import "tailwindcss";
 
-/* ---- Design tokens (Tailwind v4 theme) ---- */
+/* ─────────────────────────────────────────
+   AZURE COAST GRAND — Design Tokens
+   ───────────────────────────────────────── */
 @theme {
-  --color-ivory: #F8F5F0;
-  --color-gold-champagne: #D4A84F;
-  --color-brown-espresso: #3B2F2F;
-  --color-beige-warm: #E8DDD0;
-  --color-bronze-soft: #B58A5A;
-
-  --font-serif: "Playfair Display", Georgia, serif;
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
+  /* Azure Coast Collection Palette */
+  --acg-ocean-blue:     #1E6F8E;    /* Primary ocean */
+  --acg-navy-dark:      #17384F;    /* Deep coastal navy */
+  --acg-champagne:      #D9B77A;    /* Champagne gold accent */
+  --acg-ivory:          #F8F7F4;    /* Soft ivory background */
+  --acg-sea-glass:      #EAF4F6;    /* Light sea glass */
+  --acg-white:          #FFFFFF;    /* Pure white */
+  --acg-charcoal:       #1C1C1E;    /* For auth pages */
+  --acg-charcoal-light: #2C2C2E;
+  
+  /* Typography */
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-sans:    "Plus Jakarta Sans", system-ui, sans-serif;
 }
 
-html,
-body,
-#root {
-  height: 100%;
+/* ─────────────────────────────────────────
+   Reset & Base
+   ───────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #root {
+  width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
 }
 
 body {
-  margin: 0;
   font-family: var(--font-sans);
-  background-color: var(--color-ivory);
-  color: var(--color-brown-espresso);
+  background: var(--acg-charcoal);
+  color: var(--acg-ivory);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom premium transitions & animations */
-@keyframes float-gentle {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-6px);
-  }
+/* ─────────────────────────────────────────
+   Keyframe Animations
+   ───────────────────────────────────────── */
+@keyframes acg-fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes fade-in-up {
-  0% {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
+@keyframes acg-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
-@keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 15px rgba(212, 168, 79, 0.15), inset 0 0 15px rgba(255, 255, 255, 0.4);
-    border-color: rgba(212, 168, 79, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 35px rgba(212, 168, 79, 0.35), inset 0 0 25px rgba(255, 255, 255, 0.6);
-    border-color: rgba(212, 168, 79, 0.6);
-  }
+@keyframes float-1 { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes float-2 { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes float-3 { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes float-4 { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+
+@keyframes modal-scale-up {
+  from { opacity: 0; transform: scale(0.92) translateY(15px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-@keyframes shimmer-sweep {
-  0% {
-    transform: translateX(-100%) skewX(-15deg);
-  }
-  100% {
-    transform: translateX(200%) skewX(-15deg);
-  }
-}
+/* ─────────────────────────────────────────
+   Animation Classes
+   ───────────────────────────────────────── */
+.acg-anim-fade-up  { animation: acg-fade-up  0.9s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.acg-anim-fade-in  { animation: acg-fade-in  0.8s ease both; }
 
-.animate-float {
-  animation: float-gentle 5s ease-in-out infinite;
-}
+.acg-float-1 { animation: float-1 6s ease-in-out infinite; }
+.acg-float-2 { animation: float-2 5s ease-in-out infinite; }
+.acg-float-3 { animation: float-3 7s ease-in-out infinite; }
+.acg-float-4 { animation: float-4 5.5s ease-in-out infinite; }
 
-.animate-float-delayed {
-  animation: float-gentle 5.5s ease-in-out infinite;
-  animation-delay: 1.8s;
-}
+.acg-d-100 { animation-delay: 0.10s; }
+.acg-d-200 { animation-delay: 0.20s; }
+.acg-d-300 { animation-delay: 0.30s; }
+.acg-d-400 { animation-delay: 0.40s; }
+.acg-d-500 { animation-delay: 0.50s; }
+.acg-d-600 { animation-delay: 0.60s; }
+.acg-d-700 { animation-delay: 0.70s; }
 
-.animate-float-slow {
-  animation: float-gentle 7s ease-in-out infinite;
-  animation-delay: 0.8s;
-}
-
-.animate-fade-up {
-  animation: fade-in-up 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.animate-glow-pulse {
-  animation: pulse-glow 4s ease-in-out infinite;
-}
-
-.shimmer-sweep::after {
-  content: '';
+/* ─────────────────────────────────────────
+   Left Hero Background Overlay & Layout
+   ───────────────────────────────────────── */
+.acg-left-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 50%;
-  height: 100%;
+  inset: 0;
   background: linear-gradient(
     90deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.45) 50%,
-    rgba(255, 255, 255, 0) 100%
+    rgba(8, 15, 25, 0.82) 0%,
+    rgba(8, 15, 25, 0.55) 40%,
+    rgba(8, 15, 25, 0.10) 100%
   );
-  transform: translateX(-100%) skewX(-15deg);
+  z-index: 1;
+  pointer-events: none;
 }
 
-.shimmer-sweep:hover::after {
-  animation: shimmer-sweep 1s cubic-bezier(0.16, 1, 0.3, 1);
+/* 4 Feature Glass Cards Grid */
+.acg-feature-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  width: 100%;
+  max-width: 520px;
+  z-index: 10;
 }
 
-/* Glassmorphism utility card */
-.glass-luxury-card {
-  background: rgba(248, 245, 240, 0.65); /* Warm Ivory base */
-  backdrop-filter: blur(24px) saturate(130%);
-  -webkit-backdrop-filter: blur(24px) saturate(130%);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 24px 60px rgba(59, 47, 47, 0.08), 
-              inset 0 1px 1px rgba(255, 255, 255, 0.8);
+.acg-feature-card {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.10);
+  border-radius: 16px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #FFFFFF;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
 }
+
+.acg-feature-card:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.30);
+  transform: translateY(-4px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+}
+
+/* ─────────────────────────────────────────
+   Premium Glass Card (Right Side Auth Panel)
+   ───────────────────────────────────────── */
+.acg-glass-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.15);
+  border-radius: 32px;
+  overflow: hidden;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s;
+}
+
+.acg-glass-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 32px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.03) 40%, transparent 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.acg-glass-card::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border-radius: 31px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ─────────────────────────────────────────
+   Form Inputs
+   ───────────────────────────────────────── */
+.acg-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  color: var(--acg-white);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 14px 18px;
+  outline: none;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.acg-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.acg-input:focus {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+}
+
+/* ─────────────────────────────────────────
+   Buttons (Luxury Ocean Teal/Champagne)
+   ───────────────────────────────────────── */
+.acg-btn {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  background: linear-gradient(135deg, var(--acg-ocean-blue) 0%, var(--acg-navy-dark) 100%);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 16px 24px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 8px 24px rgba(30, 111, 142, 0.25);
+}
+
+.acg-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.acg-btn:hover { 
+  box-shadow: 0 12px 32px rgba(31, 122, 140, 0.4);
+  transform: translateY(-2px);
+}
+.acg-btn:hover::after { opacity: 1; }
+.acg-btn:active { transform: translateY(0); }
+
+.acg-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ─────────────────────────────────────────
+   Glassmorphism Success Modal
+   ───────────────────────────────────────── */
+.acg-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 15, 25, 0.62);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: acg-fade-in 0.3s ease forwards;
+}
+
+.acg-modal {
+  position: relative;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.35);
+  border-radius: 28px;
+  padding: 40px;
+  max-width: 440px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: modal-scale-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.acg-modal::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 28px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* ─────────────────────────────────────────
+   Scrollbar hide
+   ───────────────────────────────────────── */
+::-webkit-scrollbar { display: none; }
+
+/* ─────────────────────────────────────────
+   Dashboard Premium Cards
+   ───────────────────────────────────────── */
+.acg-dash-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(30, 111, 142, 0.15);
+  box-shadow: 0 8px 24px rgba(30, 111, 142, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.acg-dash-card:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(30, 111, 142, 0.25);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(30, 111, 142, 0.12);
+}
+
